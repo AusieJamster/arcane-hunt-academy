@@ -11,3 +11,66 @@ generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["jsonProtocol"]
 }
+
+model Weapon {
+  id                      String  @id @default(uuid())
+  name                    String
+  price                   Int
+  baseId                  String?
+  size                    SizeEnum
+  ammos                   Ammo[]
+  damage                  Float
+  damageType              DamageTypeEnum?
+  silenced                Boolean
+  effectiveRange          Float
+  sightedRange            Float
+  rateOfFire              Float
+  cycleTime               Float
+  spread                  Float
+  sway                    Float
+  verticalRecoil          Float
+  reloadSpeed             Float
+  muzzleVelocity          Float
+  meleeDamage             Float
+  meleeDamageType         DamageTypeEnum
+  heavyMeleeDamage        Float
+  heavyMeleeDamageType    DamageTypeEnum
+  staminaConsumption      Float
+  heavyStaminaConsumption Float
+
+  @@index([id])
+}
+
+model Ammo {
+  id                     String          @id @default(uuid())
+  type                   AmmoTypeEnum
+  weapon                 Weapon[]
+}
+
+enum AmmoTypeEnum {
+  COMPACT
+  MEDIUM
+  LONG
+  SHOTGUN
+  SPECIAL
+  SPECIAL_NITRO
+  SPECIAL_BOLT
+  SPECIAL_BOLT_COMPACT
+  SPECIAL_ARROW
+  SPECIAL_PROTOTYPE_BULLET
+}
+
+enum SizeEnum {
+  SMALL
+  MEDIUM
+  LARGE
+}
+
+enum DamageTypeEnum {
+  BLUNT
+  PIERCING
+  LIGHT_RENDING
+  RENDING
+  INTENSE_RENDING
+  EXPLOSION
+}
