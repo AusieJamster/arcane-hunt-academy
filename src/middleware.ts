@@ -1,7 +1,12 @@
 import { authMiddleware } from "@clerk/nextjs";
 
 export default authMiddleware({
-  publicRoutes: ["/api/weaponById"],
+  publicRoutes: [
+    "/api/weaponById",
+    "/api/weapons",
+    "/api/toolById",
+    "/api/tools",
+  ],
 });
 
 // Stop Middleware running on static files

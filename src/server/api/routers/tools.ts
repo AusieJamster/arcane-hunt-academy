@@ -2,29 +2,29 @@ import { createTRPCRouter, publicProcedure } from "../trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 
-export const weaponsRouter = createTRPCRouter({
+export const toolsRouter = createTRPCRouter({
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {
-      const weapon = await ctx.prisma.weapon.findUnique({
+      const tool = await ctx.prisma.tool.findUnique({
         where: { id: input.id },
-        include: { ammos: true, ammoOptions: true },
+        include: { damageTypes: true },
       });
 
-      if (!weapon)
+      if (!tool)
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Weapon not found",
+          message: "Tool not found",
         });
 
-      return weapon;
+      return tool;
     }),
   getAll: publicProcedure.query(async ({ ctx }) => {
-    const weapons = await ctx.prisma.weapon.findMany({
+    const tools = await ctx.prisma.tool.findMany({
       take: 100,
-      include: { ammos: true, ammoOptions: true },
       orderBy: [{ price: "desc" }],
+      include: { damageTypes: true },
     });
-    return weapons;
+    return tools;
   }),
 });

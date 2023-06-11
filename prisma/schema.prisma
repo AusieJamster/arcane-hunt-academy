@@ -13,25 +13,26 @@ generator client {
 }
 
 model Weapon {
-  id                      String  @id @default(uuid())
-  name                    String @unique
-  price                   Int
-  baseId                  String?
-  size                    SizeEnum
-  ammos                   Ammo[]
-  ammoOptions             AmmoOptions[]
-  damage                  Float
-  damageType              DamageTypeEnum?
-  silenced                Boolean @default(false)
-  effectiveRange          Float
-  sightedRange            Float
-  rateOfFire              Float
-  cycleTime               Float
-  spread                  Float
-  sway                    Float
-  verticalRecoil          Float
-  reloadSpeed             Float
-  muzzleVelocity          Float
+  id             String          @id @default(uuid())
+  name           String          @unique
+  price          Int
+  baseId         String?
+  unlockLevel    Int?
+  size           SizeEnum
+  ammos          Ammo[]
+  ammoOptions    AmmoOptions[]
+  damage         Float
+  damageType     DamageTypeEnum?
+  silenced       Boolean         @default(false)
+  effectiveRange Float
+  sightedRange   Float
+  rateOfFire     Float
+  cycleTime      Float
+  spread         Float
+  sway           Float
+  verticalRecoil Float
+  reloadSpeed    Float
+  muzzleVelocity Float
 
   meleeDamage             Float
   meleeDamageType         DamageTypeEnum @default(BLUNT)
@@ -43,51 +44,66 @@ model Weapon {
   @@index([id])
 }
 
-model Tool_Consumable {
-  id                      String  @id @default(uuid())
-  name                    String  @unique
-  attribute               Attribute
-  activationType          ActivationType
-  descriptions            String
-  price                   Int
-  baseId                  String?
-  capacity                Int     @default(1)
-  unlockLevel             Int?
-  
-  damage                  Float?
-  damageType              DamageTypeEnum?
-  damageRadius            Float?
-  throwRange              Float? @map("effectiveRange")
-  effectDuration          Int? // in seconds
+model Tool {
+  id             String         @id @default(uuid())
+  name           String         @unique
+  attribute      Attribute
+  activationType ActivationType
+  descriptions   String         @db.VarChar(255)
+  price          Int
+  baseId         String?
+  capacity       Int            @default(1)
+  unlockLevel    Int?
+  slot           SlotType
 
-  activationValue         Int?
-  activationDuration      Int?
-  
-  handling                Float?
-  rateOfFire              Float?
-  reloadSpeed             Float?
-  muzzleVelocity          Float?
-  silenced                Boolean @default(false)
+  controlRange Int?
 
-  meleeDamage             Float @default(13)
-  meleeDamageType         DamageTypeEnum @default(BLUNT)
-  heavyMeleeDamage        Float @default(27)
-  heavyMeleeDamageType    DamageTypeEnum @default(BLUNT)
-  staminaConsumption      Float
-  heavyStaminaConsumption Float
-	@@map("Tool")
+  damage         Float?
+  damageTypes    DamageType[]
+  damageRadius   Float?
+  throwRange     Float?
+  sightedRange   Float?
+  effectiveRange Float?
+  effectDuration Int? // in seconds
+
+  activationValue    Int?
+  activationDuration Float
+
+  rateOfFire     Float?
+  spread         Float?
+  sway           Float?
+  verticalRecoil Float?
+  reloadSpeed    Float?
+  muzzleVelocity Float?
+  silenced       Boolean @default(false)
+
+  meleeDamage              Float          @default(13)
+  meleeDamageType          DamageTypeEnum @default(BLUNT)
+  heavyMeleeDamage         Float          @default(27)
+  heavyMeleeDamageType     DamageTypeEnum @default(BLUNT)
+  staminaConsumption       Float          @default(5)
+  heavyStaminaConsumption  Float          @default(10)
+  staminaConsumptionThrown Float?
+
+  @@index([id])
 }
 
 model Ammo {
-  id                     String          @id @default(uuid())
-  type                   AmmoTypeEnum    @unique
-  weapon                 Weapon[]
+  id     String       @id @default(uuid())
+  type   AmmoTypeEnum @unique
+  weapon Weapon[]
+}
+
+model DamageType {
+  id              String         @id @default(uuid())
+  type            DamageTypeEnum @unique
+  Tool_Consumable Tool[]
 }
 
 model AmmoOptions {
-  id                     String          @id @default(uuid())
-  type                   AmmoOptionsEnum @unique
-  weapon                 Weapon[]
+  id     String          @id @default(uuid())
+  type   AmmoOptionsEnum @unique
+  weapon Weapon[]
 }
 
 enum Attribute {
@@ -104,6 +120,11 @@ enum Attribute {
   BLUNT
   BULLET
   SCOUTING
+}
+
+enum SlotType {
+  TOOL
+  CONSUMABLE
 }
 
 enum ActivationType {
@@ -143,6 +164,7 @@ enum DamageTypeEnum {
   INTENSE_FIRE
   EXPLOSION
   POISON
+  LIGHT
 }
 
 enum AmmoOptionsEnum {
@@ -158,9 +180,14 @@ enum AmmoOptionsEnum {
   SLUG
   PENNY_SHOT
   FLECHETTE
+  STEEL_BALL
   BOLT_POISON
   BOLT_CHOAS
   BOLT_CHOKE
   BOLT_EXPLOSIVE
   BOLT_SHOT
+  ARROW_CONCERTINA
+  ARROW_FRAG
+  ARROW_POISON
+  SHREDDER
 }
