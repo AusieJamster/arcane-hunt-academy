@@ -15,6 +15,7 @@ generator client {
 model Weapon {
   id             String          @id @default(uuid())
   name           String          @unique
+  imageUrl       String?         @unique
   price          Int
   baseId         String?
   unlockLevel    Int?
@@ -47,6 +48,7 @@ model Weapon {
 model Tool {
   id             String         @id @default(uuid())
   name           String         @unique
+  imageUrl       String?         @unique
   attribute      Attribute
   activationType ActivationType
   descriptions   String         @db.VarChar(255)
