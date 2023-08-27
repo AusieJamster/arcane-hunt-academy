@@ -8,7 +8,7 @@ export const weaponsRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const weapon = await ctx.prisma.weapon.findUnique({
         where: { id: input.id },
-        include: { ammos: true, ammoOptions: true },
+        include: { ammoCapacity: true, ammoOptions: true },
       });
 
       if (!weapon)
@@ -17,12 +17,20 @@ export const weaponsRouter = createTRPCRouter({
           message: "Weapon not found",
         });
 
-      return weapon;
+      if (weapon.baseId) {
+        const baseWeapon = await ctx.prisma.weapon.findUnique({
+          where: { id: weapon.baseId },
+          select: { name: true },
+        });
+        return { ...weapon, baseWeapon };
+      }
+
+      return { weapon };
     }),
   getAll: publicProcedure.query(async ({ ctx }) => {
     const weapons = await ctx.prisma.weapon.findMany({
       take: 100,
-      include: { ammos: true, ammoOptions: true },
+      include: { ammoCapacity: true, ammoOptions: true },
       orderBy: [{ price: "desc" }],
     });
     return weapons;

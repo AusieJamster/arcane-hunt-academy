@@ -13,42 +13,35 @@ generator client {
 }
 
 model Weapon {
-  id             String          @id @default(uuid())
-  name           String          @unique
-  imageUrl       String?         @unique
-  price          Int
-  baseId         String?
-  unlockLevel    Int?
-  size           SizeEnum
-  ammos          Ammo[]
-  ammoOptions    AmmoOptions[]
-  damage         Float
-  damageType     DamageTypeEnum?
-  silenced       Boolean         @default(false)
-  effectiveRange Float
-  sightedRange   Float
-  rateOfFire     Float
-  cycleTime      Float
-  spread         Float
-  sway           Float
-  verticalRecoil Float
-  reloadSpeed    Float
-  muzzleVelocity Float
-
+  id                      String          @id @default(uuid())
+  name                    String          @unique
+  imageUrl                String?         @unique
+  price                   Int
+  baseId                  String?
+  unlockLevel             Int?
+  size                    SizeEnum
+  ammoCapacity            AmmoCapacity[]
+  ammoOptions             AmmoOptions[]
+  damage                  Float
+  damageType              DamageTypeEnum?
+  silenced                Boolean         @default(false)
+  weaponStats             WeaponStats?    @relation(fields: [weaponStatsName], references: [id])
   meleeDamage             Float
-  meleeDamageType         DamageTypeEnum @default(BLUNT)
+  meleeDamageType         DamageTypeEnum  @default(BLUNT)
   heavyMeleeDamage        Float
-  heavyMeleeDamageType    DamageTypeEnum @default(BLUNT)
+  heavyMeleeDamageType    DamageTypeEnum  @default(BLUNT)
   staminaConsumption      Float
   heavyStaminaConsumption Float
+  weaponStatsName         String?
 
   @@index([id])
+  @@index([weaponStatsName])
 }
 
 model Tool {
   id             String         @id @default(uuid())
   name           String         @unique
-  imageUrl       String?         @unique
+  imageUrl       String?        @unique
   attribute      Attribute
   activationType ActivationType
   descriptions   String         @db.VarChar(255)
@@ -64,20 +57,13 @@ model Tool {
   damageTypes    DamageType[]
   damageRadius   Float?
   throwRange     Float?
-  sightedRange   Float?
-  effectiveRange Float?
   effectDuration Int? // in seconds
 
   activationValue    Int?
   activationDuration Float
+  silenced           Boolean @default(false)
 
-  rateOfFire     Float?
-  spread         Float?
-  sway           Float?
-  verticalRecoil Float?
-  reloadSpeed    Float?
-  muzzleVelocity Float?
-  silenced       Boolean @default(false)
+  weaponStats WeaponStats? @relation(fields: [weaponStatsName], references: [id])
 
   meleeDamage              Float          @default(13)
   meleeDamageType          DamageTypeEnum @default(BLUNT)
@@ -86,14 +72,38 @@ model Tool {
   staminaConsumption       Float          @default(5)
   heavyStaminaConsumption  Float          @default(10)
   staminaConsumptionThrown Float?
+  weaponStatsName          String?
+
+  @@index([id])
+  @@index([weaponStatsName])
+}
+
+model WeaponStats {
+  id             String   @id @default(uuid()) @map("name")
+  weaponName     String
+  effectiveRange Float?
+  sightedRange   Float?
+  rateOfFire     Float?
+  cycleTime      Float?
+  spread         Float?
+  sway           Float?
+  verticalRecoil Float?
+  reloadSpeed    Float?
+  muzzleVelocity Float?
+  tools          Tool[]
+  weapon         Weapon[]
 
   @@index([id])
 }
 
-model Ammo {
-  id     String       @id @default(uuid())
-  type   AmmoTypeEnum @unique
-  weapon Weapon[]
+model AmmoCapacity {
+  id              String        @id @default(uuid())
+  magazinePlusOne Boolean       @default(false)
+  magazine        Int           @db.TinyInt
+  capacity        Int           @db.TinyInt
+  type            AmmoTypeEnum
+  weapon          Weapon[]
+  AmmoOptions     AmmoOptions[]
 }
 
 model DamageType {
@@ -103,9 +113,15 @@ model DamageType {
 }
 
 model AmmoOptions {
-  id     String          @id @default(uuid())
-  type   AmmoOptionsEnum @unique
-  weapon Weapon[]
+  id             String          @id @default(uuid())
+  name           String          @unique
+  price          Int
+  capacity       AmmoCapacity    @relation(fields: [ammoCapacityId], references: [id])
+  type           AmmoOptionsEnum
+  weapon         Weapon[]
+  ammoCapacityId String
+
+  @@index([ammoCapacityId])
 }
 
 enum Attribute {
